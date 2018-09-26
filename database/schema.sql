@@ -14,8 +14,15 @@ DROP TABLE IF EXISTS relatedArtists;
 CREATE TABLE relatedArtists (
    id INT AUTO_INCREMENT PRIMARY KEY,
    related_Artist_ID INT NOT NULL,
-   main_Artist_ID INT NOT NULL,
-   FOREIGN KEY (related_Artist_ID) REFERENCES artist(artistID),
-   FOREIGN KEY (main_Artist_ID) REFERENCES artist(artistID)
+   main_Artist_ID INT NOT NULL
  );
 
+ALTER TABLE relatedArtists
+ADD FOREIGN KEY (related_Artist_ID)
+REFERENCES artist(artistID)
+ON DELETE CASCADE;
+
+ALTER TABLE relatedArtists
+ADD FOREIGN KEY (main_Artist_ID)
+REFERENCES artist(artistID)
+ON DELETE CASCADE;
