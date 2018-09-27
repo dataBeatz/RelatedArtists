@@ -7,7 +7,7 @@ let connection = mysql.createConnection ({
 
 const getRelatedArtists = function(id, showArtist) {
   let sqlQuery =
-    `select artist_name, artistid, listeners, artist_image, popularSong from artist where artistid in (select related_artist_id from relatedartists where main_artist_id = (select artistid from artist where artistid =` +
+    `SELECT artist_name, artistid, listeners, artist_image, popularSong FROM artist WHERE artistid IN (SELECT related_artist_id FROM relatedartists WHERE main_artist_id = (SELECT artistid FROM artist WHERE artistid =` +
     connection.escape(id) + `));`;
   connection.query(sqlQuery, function(error, result) {
     if (error) {
@@ -21,7 +21,17 @@ const getRelatedArtists = function(id, showArtist) {
 };
 
 const deleteArtist = function(id) {
-
+  let sqlQuery = `DELETE FROM artist WHERE artistid = ${id};`
+  connection.query(sqlQuery, function(error) {
+    if (error) {
+      console.log('Error while attempting to delete artist.');
+    } else {
+      console.log('Successfully deleted artist #: ', id);
+    }
+  })
 }
 
+const 
+
+module.exports.deleteArtist = deleteArtist;
 module.exports.getRelatedArtists = getRelatedArtists;

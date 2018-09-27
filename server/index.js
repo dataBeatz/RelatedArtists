@@ -18,7 +18,7 @@ app.get('/artist/:id/relatedArtists', (req, res) => {
   });
 });
 
-app.post('/artist/:id/relatedArtists', (req, res) => {
+app.post('/artist/', (req, res) => {
   console.log('Receiving post request.');
 });
 
@@ -27,7 +27,9 @@ app.put('/artist/:id/relatedArtists', (req, res) => {
 });
 
 app.delete('/artist/:id/relatedArtists', (req, res) => {
-  console.log('Receiving delete request.');
+  console.log('Received DELETE with ID: ', req.params.id);
+  db.deleteArtist(req.params.id)
+  res.status(200).send('Artist deleted');
 });
 
 app.options('', (req, res) => {
