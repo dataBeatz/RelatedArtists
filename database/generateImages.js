@@ -2,12 +2,12 @@ const faker = require('faker');
 var request = require('request');
 const fs = require('fs');
 
-let imageGetter = function(imageNumber) {
+let imageGetter = (imageNumber) => {
   const keywords = ['person', 'singer', 'artist', 'human', 'rapper', 'man', 'woman', 'rob'];
   const randIndex = Math.floor(Math.random() * keywords.length);
   request
     .get(`https://loremflickr.com/240/240/${keywords[randIndex]}?random=${imageNumber}`)
-    .on('error', function(err) {
+    .on('error', (err) => {
      console.log(err);
     })
     .pipe(fs.createWriteStream(`./images/${imageNumber}.jpg`));
