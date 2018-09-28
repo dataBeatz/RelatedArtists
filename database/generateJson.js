@@ -3,7 +3,6 @@ var request = require('request');
 const fs = require('fs');
 
 let startTime = Date.now();
-// let fileLocation = `./jsondata/fakedata.json`;
 let jsonToWrite = '[';
 let index = 0;
 
