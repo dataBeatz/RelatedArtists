@@ -1,6 +1,6 @@
-# Project Name
+# Spotify: Related Artists
 
-> Project description
+> Displays a list of musical artists related to the current artist displayed (represented by the ID in the endpoint).
 
 ## Related Projects
 
@@ -17,7 +17,23 @@
 
 ## Usage
 
-> Some usage instructions
+> Server API instructions:
+
+   GET('/artist/:id/relatedArtists')
+   //Returns the artist whose unique ID is an exact match for the ID provided in the URL.
+   
+   POST('/artist')
+   //Creates a new artist in the database and provides them with a unique ID which is sent back to the user.
+   
+   PUT('/artist/:id')
+   //Takes a request body and accepts values within the parameter to replace existing values.  The relevant values are:
+   
+   (artist_name, artist_image, popularSong)
+   
+   Schema also contains artistID and listeners (artistID is auto_incremented within SQL and listeners will be randomly generated for the purpose this module serves).
+   
+   DELETE('/artist/:id')
+   //Deletes the artist corresponding to the ID provided from the database. Delete cascades into the related artists table in order to remove any references from the original artist.
 
 ## Requirements
 

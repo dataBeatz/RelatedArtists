@@ -4,10 +4,11 @@ var db = require ('../database/index.js');
 const path = require ('path');
 var cors = require ('cors');
 
-app.use (cors ());
-app.use (express.static (path.join (__dirname + '/../public')));
+app.use(cors ());
+app.use(express.static (path.join (__dirname + '/../public')));
 
-app.get (`/artist/:id/relatedArtists`, (req, res) => {
+app.get('/artist/:id/relatedArtists', (req, res) => {
+  console.log('Received GET with: ', req.params);
   db.getRelatedArtists (req.params.id, (error, data) => {
     if (error) {
       res.status (503).send (error);
@@ -17,6 +18,24 @@ app.get (`/artist/:id/relatedArtists`, (req, res) => {
   });
 });
 
-app.listen (3002, () => {
+app.post('/artist/', (req, res) => {
+  console.log('Receiving post request.');
+});
+
+app.put('/artist/:id/relatedArtists', (req, res) => {
+  console.log('Receiving put request.');
+});
+
+app.delete('/artist/:id/relatedArtists', (req, res) => {
+  console.log('Received DELETE with ID: ', req.params.id);
+  db.deleteArtist(req.params.id)
+  res.status(200).send('Artist deleted');
+});
+
+app.options('', (req, res) => {
+  console.log('Here are your options: get, post, put, delete.')
+});
+
+app.listen(3002, () => {
   console.log ('listening on port 3002!');
 });
