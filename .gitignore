@@ -27,3 +27,8 @@ dist/
 ## jsondata
 database/jsondata/
 
+## csvdata
+database/csvdata/
+
+## images
+database/images/

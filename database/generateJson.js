@@ -22,7 +22,7 @@ const generateArtist = (n, index) => {
 }
 
 
-const generateSegment = (stream, json, index) => new Promise ((resolve, reject) => {
+const generateSegment = (stream, json, index) => new Promise((resolve, reject) => {
   stream.write(jsonToWrite, 'utf-8', () => {
     console.log('Writing files: ' + index + ' - ' + (index + 999999));
     stream.end(resolve);

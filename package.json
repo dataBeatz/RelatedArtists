@@ -44,6 +44,8 @@
     "jquery": "^3.3.1",
     "mysql": "^2.16.0",
     "nodemon": "^1.18.4",
+    "pg": "^7.4.3",
+    "pg-hstore": "^2.3.2",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "regenerator-runtime": "^0.12.1",
