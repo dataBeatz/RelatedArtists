@@ -23,11 +23,13 @@
     "node": ">=6.13.0"
   },
   "scripts": {
-    "start": "nodemon server/index.js",
+    "build": "webpack --config webpack.prod.js",
+    "csv": "node --max-old-space-size=8192 database/generateCSV.js",
+    "json": "node --max-old-space-size=8192 database/generateJson.js",
     "react-dev": "webpack -d --watch",
-    "seed": "node database/generateJson.js",
-    "test": "jest",
-    "build": "webpack --config webpack.prod.js"
+    "seed": "node --max-old-space-size=8192 database/pgseed.js",
+    "start": "nodemon server/index.js",
+    "test": "jest"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.4",

@@ -18,6 +18,13 @@ app.get('/artist/:id/relatedArtists', (req, res) => {
   });
 });
 
+app.get('/:id', (req, res) => {
+  console.log('Receiving get request for PostgreSQL route.');
+  db.pgGet(req.params.id, data => {
+    res.status(200).send(data.rows[0]);
+  })
+})
+
 app.post('/artist/', (req, res) => {
   console.log('Receiving post request.');
 });

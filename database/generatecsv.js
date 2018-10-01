@@ -3,10 +3,11 @@ var request = require('request');
 const fs = require('fs');
 
 let startTime = Date.now();
-let csvBlock = 'id,artist_name,listeners,artist_image,popular_song\n';
-let index = 0;
+let csvBlock;
+let index = 1;
 
-const generateArtist = (n, index) => {
+const generateArtist = (index, n) => {
+  csvBlock = 'id,artist_name,listeners,artist_image,popular_song\n';
   for (let i = index; i < index + n; i++) {
     let nextImage = i < 1000 ? i : (i % 1000 + 1);
     let artist_name = faker.name.findName();
@@ -18,23 +19,40 @@ const generateArtist = (n, index) => {
   }
 }
 
-const generateSegment = (stream, csv, index) => new Promise((resolve, reject) => {
+const generateRelations = (index, n) => {
+  csvBlock = 'primary_id,related_id\n';
+  for (let i = index; i < index + n; i++) {
+    let addToCSV = '';
+    for (let j = 0; j < 10; j++) {
+      let randomArtist = Math.ceil(Math.random() * 10000000);
+      addToCSV += `${i},${randomArtist}\n`;
+    }
+    csvBlock += addToCSV;
+  }
+}
+
+const generateSegment = (stream, csv, index, table) => new Promise((resolve, reject) => {
   stream.write(csvBlock, 'utf-8', () => {
-    console.log('Writing files: ' + index + ' - ' + (index + 999999));
+    console.log(`Writing ${table} files: ` + index + ' - ' + (index + 999999));
     stream.end(resolve);
   })
 })
 
-const generateLoop = async () => {
-  for (let i = 0; i < 10; i += 1) {
-    csvBlock = 'id,artist_name,listeners,artist_image,popular_song\n';
-    generateArtist(1000000, index);
-    let stream = fs.createWriteStream(`./csvdata/fakedata${i+1}.csv`);
-    await generateSegment(stream, csvBlock, index);
+const generateLoop = async (generator, table, n) => {
+  for (let i = 0; i < n; i += 1) {
+    generator(index, 1000000);
+    let stream = fs.createWriteStream(`./csvdata/fake${table}${i+1}.csv`);
+    await generateSegment(stream, csvBlock, index, table);
     index += 1000000;
     csvBlock = '';
   }
+  index = 1;
   console.log((Date.now() - startTime) / 1000 + ' seconds.');
 }
 
-generateLoop();
+const runBothLoops = async () => {
+  await generateLoop(generateArtist, 'artists', 10);
+  await generateLoop(generateRelations, 'relations', 10);
+}
+
+runBothLoops();

@@ -1,9 +1,12 @@
-let mysql = require('mysql');
-let connection = mysql.createConnection ({
-  host: 'localhost',
-  user: 'root',
-  database: 'artists',
-});
+const pg = require('pg');
+const path = require('path');
+const pool = new pg.Pool({
+  user: 'jerrywu',
+  host: '127.0.0.1',
+  database: 'relatedartists',
+  password: null,
+  port: '5432'
+})
 
 const getRelatedArtists = (id, showArtist) => {
   let sqlQuery =
@@ -19,6 +22,20 @@ const getRelatedArtists = (id, showArtist) => {
     }
   });
 };
+
+//Gets all related artists pertinent to the provided artist id
+// select * from artists where id IN (select related_id from relations where primary_id = (select id from artists where id = 10));
+
+const pgGet = (id, callback) => {
+  let pgQuery = `SELECT * FROM artists WHERE id = ${id}`;
+  pool.query(pgQuery, (err, result) => {
+    if (err) {
+      console.log('Error handling GET request in PostgreSQL: ', err);
+    } else {
+      callback(result);
+    }
+  });
+}
 
 const deleteArtist = (id) => {
   let sqlQuery = `DELETE FROM artist WHERE artistid = ${id};`
@@ -43,6 +60,8 @@ const addArtist = (artistInfo) => {
   //Connect to database and run query to add another row to table
 }
 
+
+module.exports.pgGet = pgGet;
 module.exports.addArtist = addArtist;
 module.exports.getRelatedArtists = getRelatedArtists;
 module.exports.updateArtist = updateArtist;
