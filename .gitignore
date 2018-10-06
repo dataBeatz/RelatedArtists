@@ -29,6 +29,10 @@ database/jsondata/
 
 ## csvdata
 database/csvdata/
+database/pgexports/
 
 ## images
 database/images/
+
+## newrelic
+newrelic.js

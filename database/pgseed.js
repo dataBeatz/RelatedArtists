@@ -50,7 +50,7 @@ const loopThroughCSV = async (csvToSeed, n) => {
 const runBothSeeds = async () => {
   await loopThroughCSV(seedArtistsCSV, 10);
   await loopThroughCSV(seedRelatedCSV, 10);
-  pool.query(`ALTER TABLE relations ADD CONSTRAINT fk_artist FOREIGN KEY (id) REFERENCES artists(id);`)
+  pool.query(`ALTER TABLE relations ADD CONSTRAINT fk_artist FOREIGN KEY (id) REFERENCES artists(id) ON DELETE CASCADE;`)
   pool.end();
 }
 

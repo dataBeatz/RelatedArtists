@@ -1,48 +1,66 @@
-var express = require ('express');
-var app = express ();
-var db = require ('../database/index.js');
-const path = require ('path');
-var cors = require ('cors');
+require('newrelic');
+const cluster = require('cluster');
+const os = require('os');
+const express = require('express');
 
-app.use(cors ());
-app.use(express.static (path.join (__dirname + '/../public')));
+if (cluster.isMaster) {
+  const cpuCount = os.cpus().length
+  for (let i = 0; i < cpuCount; i++) {
+    cluster.fork()
+  }
+} else {
+  const app = express()
+  var db = require('../database/index.js');
+  const path = require('path');
+  var cors = require('cors');
 
-app.get('/artist/:id/relatedArtists', (req, res) => {
-  console.log('Received GET with: ', req.params);
-  db.getRelatedArtists (req.params.id, (error, data) => {
-    if (error) {
-      res.status (503).send (error);
-    } else {
-      res.send (data);
-    }
+  app.use(cors());
+  app.use(express.static(path.join(__dirname + '/../public')));
+
+  app.get('/artist/:id/relatedArtists', (req, res) => {
+    db.getRelatedArtists (req.params.id, data => {
+      res.status(200).send(data.rows);
+    })
   });
-});
 
-app.get('/:id', (req, res) => {
-  console.log('Receiving get request for PostgreSQL route.');
-  db.pgGet(req.params.id, data => {
-    res.status(200).send(data.rows[0]);
+  app.post('/artist/', (req, res) => {
+    const fakeArtist = {
+      name: 'Fakus Arteez',
+      listeners: 129374382, 
+      image: 'https://s3-us-west-1.amazonaws.com/hrsf101databeatzrelatedartists/1.webp',
+      song: 'Sumsin Abatus',
+    };
+    db.addArtist(fakeArtist, (error, data) => {
+      if (error) {
+        res.status(503).send(error);
+      } else {
+        res.status(201).send(data);
+      }
+    });
+  });
+
+  app.put('/artist/:id/relatedArtists', (req, res) => {
+    res.status(200).send();
+  });
+
+  app.delete('/artist/:id/relatedArtists', (req, res) => {
+    db.deleteArtist(req.params.id, (error, data) => {
+      if (error) {
+        res.status(503).send(error);
+      } else {
+        res.status(200).send(data);
+      }
+    });
+  });
+
+  app.options('', (req, res) => {
+    res.status(200).send();
+  });
+
+  app.listen(3002);
+
+  cluster.on('exit', (worker) => {
+    console.log('mayday! mayday! worker', worker.id, ' is no more!')
+    cluster.fork()
   })
-})
-
-app.post('/artist/', (req, res) => {
-  console.log('Receiving post request.');
-});
-
-app.put('/artist/:id/relatedArtists', (req, res) => {
-  console.log('Receiving put request.');
-});
-
-app.delete('/artist/:id/relatedArtists', (req, res) => {
-  console.log('Received DELETE with ID: ', req.params.id);
-  db.deleteArtist(req.params.id)
-  res.status(200).send('Artist deleted');
-});
-
-app.options('', (req, res) => {
-  console.log('Here are your options: get, post, put, delete.')
-});
-
-app.listen(3002, () => {
-  console.log ('listening on port 3002!');
-});
+}

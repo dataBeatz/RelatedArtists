@@ -8,60 +8,71 @@ const pool = new pg.Pool({
   port: '5432'
 })
 
-const getRelatedArtists = (id, showArtist) => {
-  let sqlQuery =
-    `SELECT artist_name, artistid, listeners, artist_image, popularSong FROM artist WHERE artistid IN (SELECT related_artist_id FROM relatedartists WHERE main_artist_id = (SELECT artistid FROM artist WHERE artistid =` +
-    connection.escape(id) + `));`;
-  connection.query(sqlQuery, (error, result) => {
-    if (error) {
-      console.log('db query error');
-      showArtist(error, null);
-    } else {
-      console.log('db query success');
-      showArtist(null, result);
-    }
-  });
+const getRelatedArtists = (id, callback) => {
+  let psqlQuery =
+    `SELECT relations.primary_id, artists.id, artists.artist_name, artists.listeners, artists.artist_image, artists.popular_song FROM artists INNER JOIN relations ON artists.id = relations.related_id WHERE primary_id = ${id};`;
+  // pool.query(psqlQuery, (error, result) => {
+  //   if (error) {
+  //     callback(error, null);
+  //   } else {
+  //     callback(null, result);
+  //   }
+  // });
+  pool.query(psqlQuery)
+    .then(result => callback(result))
+    .catch(error => callback(error));
 };
 
-//Gets all related artists pertinent to the provided artist id
-// select * from artists where id IN (select related_id from relations where primary_id = (select id from artists where id = 10));
-
-const pgGet = (id, callback) => {
-  let pgQuery = `SELECT * FROM artists WHERE id = ${id}`;
-  pool.query(pgQuery, (err, result) => {
-    if (err) {
-      console.log('Error handling GET request in PostgreSQL: ', err);
-    } else {
-      callback(result);
-    }
-  });
-}
-
-const deleteArtist = (id) => {
-  let sqlQuery = `DELETE FROM artist WHERE artistid = ${id};`
-  connection.query(sqlQuery, (error) => {
+const deleteArtist = (id, callback) => {
+  let psqlQuery = `DELETE FROM artists WHERE id = ${id};`
+  pool.query(psqlQuery, (error, result) => {
     if (error) {
-      console.log('Error while attempting to delete artist.');
+      callback(error, result);
     } else {
-      console.log('Successfully deleted artist #: ', id);
+      callback(null, result);
     }
   })
 }
 
 const updateArtist = (id) => {
-  let sqlQuery = `UPDATE FROM artist WHERE artistid = ${id}`;
+  let sqlQuery = `UPDATE FROM artists WHERE id = ${id}`;
   //Connect to database and use query to find artist and update
   //Query incomplete
 }
 
-const addArtist = (artistInfo) => {
-  //Store artist info in object
-  //Set up query, using properties from object in line 40
-  //Connect to database and run query to add another row to table
+const addArtist = (artistInfo, callback) => {
+  const {name, listeners, image, song} = artistInfo;
+  const insertIntoArtists = `INSERT INTO artists (artist_name, listeners, artist_image, popular_song) VALUES ('${name}', ${listeners}, '${image}', '${song}');`;
+  const retrieveCount = `SELECT count(*) FROM artists;`;
+  pool.query(insertIntoArtists)
+    .then(artistResult => {
+      pool.query(retrieveCount)
+        .then(countResult => {
+          let count = countResults.rows[0].count;
+          const artistRelations = [];
+          for (let i = 0; i < 10; i++) {
+            artistRelations.push(Math.ceil(Math.random() * count));
+          }
+          const insertIntoRelations = `INSERT INTO relations (primary_id, related_id) VALUES 
+            (${count}, ${artistRelations[0]}),
+            (${count}, ${artistRelations[1]}),
+            (${count}, ${artistRelations[2]}),
+            (${count}, ${artistRelations[3]}),
+            (${count}, ${artistRelations[4]}),
+            (${count}, ${artistRelations[5]}),
+            (${count}, ${artistRelations[6]}),
+            (${count}, ${artistRelations[7]}),
+            (${count}, ${artistRelations[8]}),
+            (${count}, ${artistRelations[9]});`
+          pool.query(insertIntoRelations)
+            .then(artistResult => callback(artistResult))
+            .catch(error => callback(error));
+        })
+        .catch(error => callback(error));
+    })
+    .catch(error => callback(error));
 }
 
-
-module.exports.pgGet = pgGet;
 module.exports.addArtist = addArtist;
 module.exports.getRelatedArtists = getRelatedArtists;
 module.exports.updateArtist = updateArtist;
