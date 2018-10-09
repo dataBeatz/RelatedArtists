@@ -4,8 +4,7 @@ const os = require('os');
 const express = require('express');
 
 if (cluster.isMaster) {
-  const cpuCount = os.cpus().length
-  for (let i = 0; i < cpuCount; i++) {
+  for (let i = 0; i < 4; i++) {
     cluster.fork()
   }
 } else {
@@ -15,7 +14,7 @@ if (cluster.isMaster) {
   var cors = require('cors');
 
   app.use(cors());
-  app.use(express.static(path.join(__dirname + '/../public')));
+  app.use('/', express.static(path.join(__dirname + '/../public')));
 
   app.get('/artist/:id/relatedArtists', (req, res) => {
     db.getRelatedArtists (req.params.id, data => {

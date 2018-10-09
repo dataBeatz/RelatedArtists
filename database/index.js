@@ -1,23 +1,16 @@
 const pg = require('pg');
 const path = require('path');
 const pool = new pg.Pool({
-  user: 'jerrywu',
-  host: '127.0.0.1',
+  user: 'power_user',
+  host: '54.183.194.223',
   database: 'relatedartists',
-  password: null,
-  port: '5432'
+  password: '$poweruserpassword',
+  port: '5432',
 })
 
 const getRelatedArtists = (id, callback) => {
   let psqlQuery =
     `SELECT relations.primary_id, artists.id, artists.artist_name, artists.listeners, artists.artist_image, artists.popular_song FROM artists INNER JOIN relations ON artists.id = relations.related_id WHERE primary_id = ${id};`;
-  // pool.query(psqlQuery, (error, result) => {
-  //   if (error) {
-  //     callback(error, null);
-  //   } else {
-  //     callback(null, result);
-  //   }
-  // });
   pool.query(psqlQuery)
     .then(result => callback(result))
     .catch(error => callback(error));
