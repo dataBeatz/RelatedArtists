@@ -1,15 +1,19 @@
 require('newrelic');
+const express = require('express');
+const app = express()
+const db = require('../database/index.js');
+// const { getData, getCache } = require('./cacheredis.js');
+
 const cluster = require('cluster');
 const os = require('os');
-const express = require('express');
+const redis = require('redis');
+const client = redis.createClient();
 
 if (cluster.isMaster) {
   for (let i = 0; i < 4; i++) {
     cluster.fork()
   }
 } else {
-  const app = express()
-  var db = require('../database/index.js');
   const path = require('path');
   var cors = require('cors');
 
@@ -17,9 +21,16 @@ if (cluster.isMaster) {
   app.use('/', express.static(path.join(__dirname + '/../public')));
 
   app.get('/artist/:id/relatedArtists', (req, res) => {
-    db.getRelatedArtists (req.params.id, data => {
-      res.status(200).send(data.rows);
-    })
+    client.get(req.params.id, (err, result) => {
+      if (result) {
+        res.status(200).send(result);
+      } else {
+        db.getRelatedArtists(req.params.id, data => {
+          client.setex(req.params.id, 3000, JSON.stringify(data));
+          res.status(200).send(data.rows);
+        })
+      }
+    });
   });
 
   app.post('/artist/', (req, res) => {
@@ -63,3 +74,5 @@ if (cluster.isMaster) {
     cluster.fork()
   })
 }
+
+module.exports = { app }

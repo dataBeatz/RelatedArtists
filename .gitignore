@@ -39,3 +39,7 @@ newrelic.js
 
 ## Pem-key
 kickstarterintroduction.pem
+
+## Other things to ignore
+dump.rdb
+server/cacheredis.js
