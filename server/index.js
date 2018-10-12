@@ -2,12 +2,11 @@ require('newrelic');
 const express = require('express');
 const app = express()
 const db = require('../database/index.js');
-// const { getData, getCache } = require('./cacheredis.js');
 
 const cluster = require('cluster');
 const os = require('os');
 const redis = require('redis');
-const client = redis.createClient();
+const client = redis.createClient({port: 6379, host: '13.57.13.235'});
 
 if (cluster.isMaster) {
   for (let i = 0; i < 4; i++) {
@@ -26,8 +25,8 @@ if (cluster.isMaster) {
         res.status(200).send(result);
       } else {
         db.getRelatedArtists(req.params.id, data => {
-          client.setex(req.params.id, 3000, JSON.stringify(data));
           res.status(200).send(data.rows);
+          client.setex(req.params.id, 3000, JSON.stringify(data));
         })
       }
     });
